@@ -83,8 +83,15 @@ Demo = {
       blocks[i].current = '1';
     }
     yOffset += Demo.padding + 2*Demo.unit;
-    
+
+
+    // This list is optimized to give the biggest elements the change
+    // to be their biggest.  It will fit in the given grid
+    //
+    // The problem is to pack this list, in best natural order, i.e.
+    // from left to right, as best as possible by block.label
     blocks = Demo.blocks.fitList(blocks);
+
 
     yOffset += Demo.padding + 20;
     Demo.canvas.textFont("bold 18px sans-serif");
