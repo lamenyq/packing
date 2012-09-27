@@ -64,12 +64,17 @@ Demo = {
   run: function() {
     Demo.canvas.reset(Demo.padding + Demo.gridY*Demo.gridX*(2*Demo.unit+Demo.padding), 960);
 
-    Demo.canvas.drawGrid(5, 5, Demo.gridX, Demo.gridY);
 
     blocks = Demo.blocks.makeList(Demo.gridX*Demo.gridY);
 
     xOffset = Demo.padding;
-    yOffset = Demo.padding + Demo.gridY*(Demo.unit + Demo.padding);
+
+    yOffset = Demo.padding + 20;
+    Demo.canvas.textFont("bold 18px sans-serif");
+    Demo.canvas.textColor("black");
+    Demo.canvas.text("Original Data", 5 , yOffset);
+    yOffset += Demo.padding;
+
     Demo.canvas.showList('natural', xOffset, yOffset, Demo.padding, blocks);
 
     for (i=0;i<blocks.length;i++) {
@@ -77,10 +82,15 @@ Demo = {
       blocks[i].h = Demo.unit;
       blocks[i].current = '1';
     }
+    yOffset += Demo.padding + 2*Demo.unit;
     
     blocks = Demo.blocks.fitList(blocks);
 
-    yOffset += Demo.padding + 2*Demo.unit;
+    yOffset += Demo.padding + 20;
+    Demo.canvas.textFont("bold 18px sans-serif");
+    Demo.canvas.textColor("black");
+    Demo.canvas.text("Optimized for Size", 5 , yOffset);
+    yOffset += Demo.padding;
 
     Demo.canvas.showList('current', xOffset, yOffset, Demo.padding, blocks);
 
@@ -112,7 +122,14 @@ Demo = {
     final = final.concat(large, med, small);
 
     yOffset += Demo.padding + 2*Demo.unit;
-    Demo.canvas.showList('current', xOffset, yOffset, Demo.padding, final);
+    yOffset += Demo.padding + 20;
+    Demo.canvas.textFont("bold 18px sans-serif");
+    Demo.canvas.textColor("black");
+    Demo.canvas.text("Solved, sorted by biggest", 5 , yOffset);
+    yOffset += Demo.padding;
+    //Demo.canvas.showList('current', xOffset, yOffset, Demo.padding, final);
+
+    Demo.canvas.drawGrid(5, yOffset, Demo.gridX, Demo.gridY);
 
     var packer = new Packer(Demo.gridX*Demo.unit, Demo.gridY*Demo.unit);
     packer.fit(final);
@@ -120,12 +137,12 @@ Demo = {
     for(var n = 0 ; n < final.length ; n++) {
       var block = final[n];
       if (block.fit) {
-       Demo.canvas.rect(5 + block.fit.x, 5 + block.fit.y, block.w, block.h, block.color);
+       Demo.canvas.rect(5 + block.fit.x, yOffset + block.fit.y, block.w, block.h, block.color);
        Demo.canvas.textFont("bold 18px sans-serif");
        Demo.canvas.textColor("black");
        blah = Demo.canvas.textSize(block.label);
-       Demo.canvas.text(block.label, 5 + block.fit.x + (block.w - blah.width)/2, 5 + block.fit.y  + (block.h + 18)/2);
-       Demo.canvas.stroke(5 + block.fit.x, 5 + block.fit.y, block.w, block.h);
+       Demo.canvas.text(block.label, 5 + block.fit.x + (block.w - blah.width)/2, yOffset + block.fit.y  + (block.h + 18)/2);
+       Demo.canvas.stroke(5 + block.fit.x, yOffset + block.fit.y, block.w, block.h);
       }
     }
   },
