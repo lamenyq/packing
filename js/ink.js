@@ -89,7 +89,7 @@ Demo = {
     yOffset += Demo.padding + 20;
     Demo.canvas.textFont("bold 18px sans-serif");
     Demo.canvas.textColor("black");
-    Demo.canvas.text("Optimized for Size", 5 , yOffset);
+    Demo.canvas.text("Best size", 5 , yOffset);
     yOffset += Demo.padding;
 
     Demo.canvas.showList('current', xOffset, yOffset, Demo.padding, blocks);
@@ -125,7 +125,7 @@ Demo = {
     yOffset += Demo.padding + 20;
     Demo.canvas.textFont("bold 18px sans-serif");
     Demo.canvas.textColor("black");
-    Demo.canvas.text("Solved, sorted by biggest", 5 , yOffset);
+    Demo.canvas.text("Packed via biggest first", 5 , yOffset);
     yOffset += Demo.padding;
     //Demo.canvas.showList('current', xOffset, yOffset, Demo.padding, final);
 
@@ -196,8 +196,9 @@ Demo = {
           list[i].upsized = true;
           list = list.splice(0, list.length -3, list);
           numLarge++;
+          medSlots -= 2;
         }
-        else if (list[i].natural === '3' && i + 1 < list.length) {
+        else if (medSlots - numMed && list[i].natural === '3' && i + 1 < list.length) {
           list[i].current = '2';
           list[i].upsized = true;
           list[i].w = 2*Demo.unit;
@@ -206,8 +207,6 @@ Demo = {
         }
         i++;
       }
-
-      medSlots -= (2 * numLarge + numMed);
 
       // Upsize possible mediums to medium
       i = 0; 
