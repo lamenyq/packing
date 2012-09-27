@@ -48,8 +48,8 @@ Demo = {
       "oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod", 
       "palegreen", "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru", "pink"];
     Demo.unit    = 50;
-    Demo.gridX   = 4;
-    Demo.gridY   = 2;
+    Demo.gridX   = 5;
+    Demo.gridY   = 3;
     Demo.padding = 5;
 
     if (!Demo.el.canvas.getContext) // no support for canvas
@@ -171,8 +171,8 @@ Demo = {
       medSlots = Demo.gridY*Math.floor(Demo.gridX/2);
       numLarge = numMed = i = 0;
       // Upsize possilbe larges to large
-      while (largeSlots - numLarge && i < list.length && !list[list.length - 1].upsized) {
-        if (list[i].natural === '3' && i + 3 < list.length) {
+      while (i < list.length && !list[list.length - 1].upsized) {
+        if (largeSlots - numLarge && list[i].natural === '3' && i + 3 < list.length) {
           list[i].current = '3';
           list[i].w = 2*Demo.unit;
           list[i].h = 2*Demo.unit;
