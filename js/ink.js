@@ -44,8 +44,8 @@ Demo = {
     };
 
     Demo.colors = ["cornsilk", "crimson", "cyan", "darkcyan", 
-      "mintcream", "mistyrose", "moccasin", "navajowhite", 
-      "oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod", 
+      "mintcream", "mistyrose", "navajowhite", 
+      "oldlace", "olive", "orange", "orangered", "orchid", "palegoldenrod", 
       "palegreen", "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru", "pink"];
     Demo.unit    = 50;
     Demo.gridX   = 5;
@@ -62,10 +62,11 @@ Demo = {
   //---------------------------------------------------------------------------
 
   run: function() {
-    Demo.canvas.reset(Demo.padding + Demo.gridY*Demo.gridX*(2*Demo.unit+Demo.padding), 960);
+    Demo.canvas.reset(Demo.padding + 2*Demo.gridY*Demo.gridX*(2*Demo.unit+Demo.padding), 960);
 
 
     blocks = Demo.blocks.makeList(Demo.gridX*Demo.gridY);
+    Demo.blocks.dumpList(blocks);
 
     xOffset = Demo.padding;
 
@@ -77,11 +78,6 @@ Demo = {
 
     Demo.canvas.showList('natural', xOffset, yOffset, Demo.padding, blocks);
 
-    for (i=0;i<blocks.length;i++) {
-      blocks[i].w = Demo.unit;
-      blocks[i].h = Demo.unit;
-      blocks[i].current = '1';
-    }
     yOffset += Demo.padding + 2*Demo.unit;
 
 
@@ -90,8 +86,17 @@ Demo = {
     //
     // The problem is to pack this list, in best natural order, i.e.
     // from left to right, as best as possible by block.label
+    //
+    
+    
+    Demo.blocks.dumpList(blocks);
+    for (i=0;i<blocks.length;i++) {
+      blocks[i].w = Demo.unit;
+      blocks[i].h = Demo.unit;
+      blocks[i].current = 'S';
+    }
     blocks = Demo.blocks.fitList(blocks);
-
+    Demo.blocks.dumpList(blocks);
 
     yOffset += Demo.padding + 20;
     Demo.canvas.textFont("bold 18px sans-serif");
@@ -110,10 +115,10 @@ Demo = {
     final = [];
     for (i=0; i < blocks.length; i++) {
       block = blocks[i];
-      if (block.current === "3") {
+      if (block.current === "L") {
         large.push(block);
       }
-      else if (block.current === "2") {
+      else if (block.current === "M") {
         med.push(block);
       }
       else {
@@ -128,15 +133,18 @@ Demo = {
 
     final = final.concat(large, med, small);
 
-    yOffset += Demo.padding + 2*Demo.unit;
-    yOffset += Demo.padding + 20;
-    Demo.canvas.textFont("bold 18px sans-serif");
-    Demo.canvas.textColor("black");
-    Demo.canvas.text("Packed via biggest first", 5 , yOffset);
-    yOffset += Demo.padding;
+      yOffset += Demo.padding + 2*Demo.unit;
+      yOffset += Demo.padding + 20;
+      Demo.canvas.textFont("bold 18px sans-serif");
+      Demo.canvas.textColor("black");
+      Demo.canvas.text("Packed via biggest first", 5 , yOffset);
+      yOffset += Demo.padding;
+
+    //xOffset = 5 + times*(10 + Demo.gridX*Demo.unit);
+    xOffset = 5;
     //Demo.canvas.showList('current', xOffset, yOffset, Demo.padding, final);
 
-    Demo.canvas.drawGrid(5, yOffset, Demo.gridX, Demo.gridY);
+    Demo.canvas.drawGrid(xOffset, yOffset, Demo.gridX, Demo.gridY);
 
     var packer = new Packer(Demo.gridX*Demo.unit, Demo.gridY*Demo.unit);
     packer.fit(final);
@@ -144,12 +152,12 @@ Demo = {
     for(var n = 0 ; n < final.length ; n++) {
       var block = final[n];
       if (block.fit) {
-       Demo.canvas.rect(5 + block.fit.x, yOffset + block.fit.y, block.w, block.h, block.color);
+       Demo.canvas.rect(xOffset + block.fit.x, yOffset + block.fit.y, block.w, block.h, block.color);
        Demo.canvas.textFont("bold 18px sans-serif");
        Demo.canvas.textColor("black");
        blah = Demo.canvas.textSize(block.label);
-       Demo.canvas.text(block.label, 5 + block.fit.x + (block.w - blah.width)/2, yOffset + block.fit.y  + (block.h + 18)/2);
-       Demo.canvas.stroke(5 + block.fit.x, yOffset + block.fit.y, block.w, block.h);
+       Demo.canvas.text(block.label, xOffset + block.fit.x + (block.w - blah.width)/2, yOffset + block.fit.y  + (block.h + 18)/2);
+       Demo.canvas.stroke(xOffset + block.fit.x, yOffset + block.fit.y, block.w, block.h);
       }
     }
   },
@@ -158,21 +166,53 @@ Demo = {
 
 
   blocks: {
+    random_color: function(ranges) {
+      if (!ranges) {
+        ranges = [
+          [150,256],
+          [0, 190],
+          [0, 30]
+        ];
+      }
+      var g = function() {
+        //select random range and remove
+        var range = ranges.splice(Math.floor(Math.random()*ranges.length), 1)[0];
+        //pick a random number from within the range
+        return Math.floor(Math.random() * (range[1] - range[0])) + range[0];
+      }
+      return "rgb(" + g() + "," + g() + "," + g() +")"; 
+    }, 
+
+    dumpList: function(blocks) {
+      thing = [];
+      for (i=0; i < blocks.length; i++) {
+        thing[i] = "'" + blocks[i].current + "'";
+      }
+      console.log(thing.join());
+    },
+
     makeList: function(count) {
       var stream = [];
-      things = ["1", "2", "3"];
+      things = ["S", "M", "L"];
+      preferred = [];  
+      //preferred = ["S",'M','S','L','M','S','M','L','M','L','S','S','L','S','M'];
+      //preferred = ['M','S','M','M','S','L','S','L','M','S','L','M','M','L','L'];
+      //preferred = ['S','S','S','S','M','M','M','M','M','S','L','M','M','L','L'];
+      //preferred = ['M','S','S','M','S','M','S','L','S','M'];
+      //preferred = ['M','L','L','S','M','L','L','M','L','L','S','L','S','L','L'];
+      //preferred = ['M','L','M','M','M','M','M','L','L','M','S','M','S','M','L' ];
+      preferred = ['S', 'S', 'L', 'M', 'S', 'S', 'M', 'S', 'L', 'S', 'M', 'L', 'L', 'L', 'L'];
       for (i=0;i<count;i++) {
-        x = Math.floor(Math.random()*3);
+        size = (i < preferred.length) ? preferred[i] : things[Math.floor(Math.random()*3)];
 
-        size = things[x];
         w = Demo.unit;
         h = Demo.unit;
        
-        if (size === "2") {
+        if (size === "M") {
           w = 2 * Demo.unit;
         }
 
-        if (size === "3") {
+        if (size === "L") {
           w = 2 * Demo.unit;
           h = 2 * Demo.unit;
         }
@@ -185,6 +225,7 @@ Demo = {
           upsized: false,
           label: i + 1,
           color: Demo.colors[i%Demo.colors.length]
+          //color: Demo.blocks.random_color()
         });
       }
       return stream;
@@ -196,8 +237,8 @@ Demo = {
       numLarge = numMed = i = 0;
       // Upsize possilbe larges to large
       while (i < list.length && !list[list.length - 1].upsized) {
-        if (largeSlots - numLarge && list[i].natural === '3' && i + 3 < list.length) {
-          list[i].current = '3';
+        if (largeSlots - numLarge && list[i].natural === 'L' && i + 3 < list.length) {
+          list[i].current = 'L';
           list[i].w = 2*Demo.unit;
           list[i].h = 2*Demo.unit;
           list[i].upsized = true;
@@ -205,8 +246,8 @@ Demo = {
           numLarge++;
           medSlots -= 2;
         }
-        else if (medSlots - numMed && list[i].natural === '3' && i + 1 < list.length) {
-          list[i].current = '2';
+        else if (medSlots - numMed && list[i].natural === 'L' && i + 1 < list.length) {
+          list[i].current = 'M';
           list[i].upsized = true;
           list[i].w = 2*Demo.unit;
           list = list.splice(0, list.length - 1, list);
@@ -218,14 +259,80 @@ Demo = {
       // Upsize possible mediums to medium
       i = 0; 
       while (medSlots - numMed && i < list.length && !list[list.length - 1].upsized) {
-        if (list[i].natural === '2' && i + 1 < list.length) {
-          list[i].current = '2';
+        if (list[i].natural === 'M' && i + 1 < list.length) {
+          list[i].current = 'M';
           list[i].upsized = true;
           list[i].w = 2*Demo.unit;
           list = list.splice(0, list.length - 1, list);
           numMed++;
         }
         i++;
+      }
+      //Demo.blocks.dumpList(list);
+      // Post scan.  Any mediums that can be upgraded to displace a large/medium at the end.
+
+
+      candidates = [];
+      x = 0;
+      for (i = 0; i < list.length - 1; i++) {
+        block = list[i];
+        if (!block.upsized && block.natural != "S") {
+          candidates[x] = i;
+          x++;
+        }
+      }
+
+      changed = true;
+      while (candidates.length && changed) {
+        changed = false;
+        last = list[list.length - 1];
+        if (last.upsized) {
+          if (last.current === "L") {
+            //console.log('L pass');
+            if (candidates.length > 3 && (medSlots - numMed) > 1) {
+              changed = true;
+              //console.log('chop large');
+              medSlots +=2;
+              list = list.splice(0, list.length - 1, list);
+              for (i=0; i < 4; i++) {
+                list[candidates[0]].current = "M";
+                list[candidates[0]].upsized = true;
+                list[candidates[0]].w = 2*Demo.unit;
+                candidates = candidates.splice(1, candidates.length - 1, candidates);
+                numMed++;
+              }
+            }
+            // Currently, don't want to bump down large to mediums.
+            else if (0 && candidates.length > 1) {
+              changed = true;
+              //console.log('down large');
+              last.current = "M";
+              last.h = Demo.unit;
+              for (i=0; i < 2; i++) {
+                list[candidates[0]].current = "M";
+                list[candidates[0]].upsized = true;
+                list[candidates[0]].w = 2*Demo.unit;
+                candidates = candidates.splice(1, candidates.length - 1, candidates);
+              }
+            }
+          }
+          else if (1 && last.current === "M") {
+            //console.log('med slots ' + medSlots + ", " + numMed);
+            //console.log('M pass');
+            if (candidates.length > 1 && medSlots - numMed) {
+              changed = true;
+              //console.log('chop medium');
+              list = list.splice(0, list.length - 1, list);
+              for (i=0; i < 2; i++) {
+                list[candidates[0]].current = "M";
+                list[candidates[0]].upsized = true;
+                list[candidates[0]].w = 2*Demo.unit;
+                candidates = candidates.splice(1, candidates.length - 1, candidates);
+              }
+            }
+          }
+          //Demo.blocks.dumpList(list);
+        }
       }
       return list;
     },
